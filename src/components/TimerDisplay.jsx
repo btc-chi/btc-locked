@@ -56,7 +56,7 @@ export default function TimerDisplay() {
       
       {!isFullscreen && !isEditing && !isRunning && (
         <div className="timer-hint">
-          CLICK TO EDIT
+          SPACEBAR TO START
         </div>
       )}
       
@@ -68,7 +68,7 @@ export default function TimerDisplay() {
       
       {!isFullscreen && isRunning && (
         <div className="timer-hint">
-          SPACEBAR TO PAUSE • R TO RESET • F FOR FULLSCREEN
+          SPACEBAR TO PAUSE • R TO RESET
         </div>
       )}
     </div>

@@ -1,6 +1,7 @@
 import React from 'react';
 import { useTimer } from '../context/TimerContext';
 import { getPastWeekDates, getDateKey, getHeatmapColor, formatMinutes } from '../utils/time';
+import DailyStats from './DailyStats';
 
 export default function HeatmapGrid() {
   const { timeHistory } = useTimer();
@@ -10,6 +11,7 @@ export default function HeatmapGrid() {
     <div className="heatmap-container">
       <h3 className="heatmap-title">
         TIME SPENT DEEP
+        <DailyStats />
       </h3>
       
       <div className="heatmap-grid">

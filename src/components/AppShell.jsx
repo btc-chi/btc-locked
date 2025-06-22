@@ -3,12 +3,18 @@ import { useTimer } from '../context/TimerContext';
 import TimerTabs from './TimerTabs';
 import TimerDisplay from './TimerDisplay';
 import HeatmapGrid from './HeatmapGrid';
+import ThemeToggle from './ThemeToggle';
+import Logo from './Logo';
+// DailyStats imported in HeatmapGrid
 
 export default function AppShell() {
   const { toggleFullscreen, isFullscreen, isRunning } = useTimer();
   
   return (
     <div className="container">
+      {/* Theme toggle */}
+      <ThemeToggle />
+      
       {/* Fullscreen toggle/exit button */}
       <button
         onClick={toggleFullscreen}
@@ -67,6 +73,7 @@ export default function AppShell() {
             <>
               {/* Timer section */}
               <div className="timer-section">
+                <Logo />
                 <TimerTabs />
                 <TimerDisplay />
               </div>
@@ -76,7 +83,7 @@ export default function AppShell() {
               
               {/* Keyboard shortcuts hint */}
               <div className="keyboard-hint">
-                SPACEBAR: Start/Pause • R: Reset • F: Fullscreen
+                SPACEBAR: Start/Pause • R: Reset • F: Fullscreen • T: Theme
               </div>
             </>
           )}

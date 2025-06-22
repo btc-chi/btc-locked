@@ -65,4 +65,108 @@ export function formatMinutes(minutes) {
     return `${hours}h`;
   }
   return `${hours}h ${remainingMinutes}m`;
+}
+
+// Format minutes as hours with decimals (e.g., "2.5h")
+export function formatHours(minutes) {
+  if (minutes === 0) return '0h';
+  const hours = minutes / 60;
+  if (hours < 0.1) return '0.1h'; // Show minimum of 0.1h for any time
+  return `${hours.toFixed(1)}h`;
+}
+
+// Get date range for different periods
+export function getDateRange(period, referenceDate = new Date()) {
+  const start = new Date(referenceDate);
+  const end = new Date(referenceDate);
+  
+  switch (period) {
+    case 'today':
+      // Today only
+      return [getDateKey(start)];
+      
+    case 'yesterday':
+      // Yesterday only
+      start.setDate(start.getDate() - 1);
+      return [getDateKey(start)];
+      
+    case 'thisWeek':
+      // This week (Monday to Sunday)
+      const dayOfWeek = start.getDay();
+      const mondayOffset = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // Convert Sunday=0 to Monday=0
+      start.setDate(start.getDate() - mondayOffset);
+      end.setDate(start.getDate() + 6);
+      break;
+      
+    case 'lastWeek':
+      // Last week (Monday to Sunday)
+      const lastWeekDayOfWeek = start.getDay();
+      const lastWeekMondayOffset = lastWeekDayOfWeek === 0 ? 6 : lastWeekDayOfWeek - 1;
+      start.setDate(start.getDate() - lastWeekMondayOffset - 7);
+      end.setDate(start.getDate() + 6);
+      break;
+      
+    case 'thisMonth':
+      // This month (1st to last day)
+      start.setDate(1);
+      end.setMonth(end.getMonth() + 1, 0); // Last day of current month
+      break;
+      
+    case 'lastMonth':
+      // Last month (1st to last day)
+      start.setMonth(start.getMonth() - 1, 1);
+      end.setDate(0); // Last day of last month
+      break;
+      
+    case 'thisYear':
+      // This year (Jan 1 to Dec 31)
+      start.setMonth(0, 1);
+      end.setMonth(11, 31);
+      break;
+      
+    case 'lastYear':
+      // Last year (Jan 1 to Dec 31)
+      start.setFullYear(start.getFullYear() - 1, 0, 1);
+      end.setFullYear(end.getFullYear() - 1, 11, 31);
+      break;
+      
+    default:
+      return [];
+  }
+  
+  // Generate array of date keys
+  const dates = [];
+  const current = new Date(start);
+  while (current <= end) {
+    dates.push(getDateKey(current));
+    current.setDate(current.getDate() + 1);
+  }
+  return dates;
+}
+
+// Calculate total minutes for a date range
+export function getTotalMinutesForDateRange(timeHistory, dateKeys) {
+  let total = 0;
+  dateKeys.forEach(dateKey => {
+    const dayData = timeHistory[dateKey] || {};
+    Object.values(dayData).forEach(minutes => {
+      total += minutes || 0;
+    });
+  });
+  return total;
+}
+
+// Calculate percentage change
+export function calculatePercentageChange(current, previous) {
+  if (previous === 0) {
+    return current > 0 ? '+∞' : '0';
+  }
+  const change = ((current - previous) / previous) * 100;
+  if (change > 0) {
+    return `+${Math.round(change)}`;
+  } else if (change < 0) {
+    return `${Math.round(change)}`;
+  } else {
+    return '0';
+  }
 } 
