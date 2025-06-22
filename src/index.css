@@ -231,6 +231,17 @@ html, body {
   transition: all 0.3s ease;
 }
 
+.timer-hint-clickable {
+  cursor: pointer;
+  user-select: none;
+}
+
+.timer-hint-clickable:hover {
+  color: var(--text-accent);
+  opacity: 1;
+  transform: translateY(-1px);
+}
+
 /* Logo Styles */
 .app-logo {
   display: flex;
@@ -247,7 +258,133 @@ html, body {
 
 .lock-icon {
   color: var(--text-secondary);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.lock-icon.locked {
+  color: var(--text-accent);
+  transform: scale(1.05);
+  animation: lockClick 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.lock-icon.unlocked {
+  color: var(--text-secondary);
+  transform: scale(1);
+}
+
+.lock-shackle {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-origin: center;
+}
+
+.shackle-open {
+  transform: translateY(-1px) translateX(3px);
+  opacity: 0.6;
+}
+
+.shackle-closed {
+  transform: translateY(0) rotate(0deg);
+  opacity: 1;
+}
+
+/* Lock animation keyframes */
+@keyframes lockClick {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+  100% { transform: scale(1.05); }
+}
+
+/* Success Screen Styles */
+.success-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: successFadeIn 0.4s ease-out;
+}
+
+.success-content {
+  text-align: center;
+  padding: 40px 32px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-accent);
+  border-radius: 16px;
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.3);
+  max-width: 400px;
+  width: 90%;
+  animation: successSlideIn 0.4s ease-out;
+}
+
+.success-message {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-accent);
+  margin-bottom: 24px;
+  line-height: 1.3;
+  max-width: 280px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.success-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.success-btn {
+  background: transparent;
+  border: 1px solid var(--border-primary);
+  color: var(--text-primary);
+  padding: 14px 20px;
+  font-family: inherit;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
   transition: all 0.3s ease;
+  cursor: pointer;
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+.success-btn-primary {
+  background: var(--text-accent);
+  color: var(--bg-primary);
+  border-color: var(--text-accent);
+}
+
+.success-btn-primary:hover {
+  background: transparent;
+  color: var(--text-accent);
+  border-color: var(--text-accent);
+}
+
+.success-btn-secondary:hover {
+  border-color: var(--border-accent);
+  color: var(--text-accent);
+}
+
+@keyframes successFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes successSlideIn {
+  from { 
+    opacity: 0;
+    transform: translateY(24px) scale(0.95);
+  }
+  to { 
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 /* Theme Toggle Styles */
@@ -363,6 +500,14 @@ html, body {
   align-items: center;
   height: 100vh;
   width: 100%;
+  cursor: pointer;
+  user-select: none;
+}
+
+@media (pointer: coarse) {
+  .fullscreen-timer {
+    touch-action: manipulation;
+  }
 }
 
 .fullscreen-timer .timer-time {

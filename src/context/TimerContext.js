@@ -24,12 +24,50 @@ export function TimerProvider({ children }) {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [sessionStartTime, setSessionStartTime] = useState(null);
   const [lastLoggedMinute, setLastLoggedMinute] = useState(0);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
+  const [completedMode, setCompletedMode] = useState(null);
   
   // Data persistence
   const [timeHistory, setTimeHistory] = useLocalStorage('locked-time-history', {});
   
   // Get current duration based on mode
   const currentDuration = mode === 'work' ? workDuration : restDuration;
+  
+  // Show success screen (no auto-switch)
+  const showSuccessScreen = useCallback((completedMode) => {
+    const workCompleteMessages = [
+      "✅ Work block complete. Time to recharge.",
+      "Congrats — you earned your break.",
+      "Nice job locking in. Let's rest.",
+      "Session complete! Time for a well-deserved break.",
+      "Locked in and focused. Now let's reset."
+    ];
+    
+    const restCompleteMessages = [
+      "Break's over — let's get back to it.",
+      "Hope that reset helped. Time to lock back in.",
+      "Refreshed and ready. Let's focus.",
+      "Break complete! Time to dive back in.",
+      "Ready to lock in again?"
+    ];
+    
+    const messages = completedMode === 'work' ? workCompleteMessages : restCompleteMessages;
+    const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+    
+    setSuccessMessage(randomMessage);
+    setCompletedMode(completedMode);
+    setShowSuccess(true);
+  }, []);
+  
+  // Handle success screen actions
+  const handleSuccessAction = useCallback((action) => {
+    setShowSuccess(false);
+    if (action === 'switch') {
+      setMode(prevMode => prevMode === 'work' ? 'rest' : 'work');
+    }
+    // If action === 'continue', just close the success screen and stay in current mode
+  }, []);
   
   // Subtle completion sound using Web Audio API
   const playCompletionSound = useCallback(() => {
@@ -143,9 +181,14 @@ export function TimerProvider({ children }) {
             // Timer finished - log any remaining partial time and play sound
             logRealtimeProgress();
             playCompletionSound();
+            const completedMode = mode;
             setIsRunning(false);
             setSessionStartTime(null);
             setLastLoggedMinute(0);
+            
+            // Show success screen
+            showSuccessScreen(completedMode);
+            
             return currentDuration; // Reset for next session
           }
           return prev - 1;
@@ -153,7 +196,7 @@ export function TimerProvider({ children }) {
       }, 1000);
     }
     return () => clearInterval(interval);
-  }, [isRunning, timeLeft, currentDuration, logRealtimeProgress, playCompletionSound]);
+  }, [isRunning, timeLeft, currentDuration, logRealtimeProgress, playCompletionSound, mode, showSuccessScreen]);
   
   const switchMode = (newMode) => {
     // Log progress if switching while running
@@ -241,6 +284,9 @@ export function TimerProvider({ children }) {
     restDuration,
     currentDuration,
     timeHistory,
+    showSuccess,
+    successMessage,
+    completedMode,
     
     // Formatted values
     formattedTime: formatTime(timeLeft),
@@ -253,6 +299,7 @@ export function TimerProvider({ children }) {
     switchMode,
     updateDuration,
     toggleFullscreen,
+    handleSuccessAction,
   };
   
   return (

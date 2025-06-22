@@ -5,15 +5,27 @@ export function formatTime(seconds) {
   return `${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
 }
 
-// Format time for display (e.g., "60" for 60 minutes)
+// Format time for display (e.g., "60" for 60 minutes, "30s" for 30 seconds)
 export function formatDisplayTime(seconds) {
+  if (seconds < 60) {
+    return `${seconds}s`;
+  }
   return Math.ceil(seconds / 60).toString();
 }
 
-// Parse time input (e.g., "60" to 3600 seconds)
+// Parse time input (supports both "60" for minutes and "30s" for seconds)
 export function parseTime(input) {
-  const minutes = parseInt(input, 10);
-  return isNaN(minutes) ? 0 : minutes * 60;
+  const str = input.toString().toLowerCase().trim();
+  
+  // Check if input ends with 's' for seconds
+  if (str.endsWith('s')) {
+    const seconds = parseInt(str.slice(0, -1), 10);
+    return isNaN(seconds) ? 0 : Math.max(1, seconds); // Minimum 1 second
+  }
+  
+  // Default to minutes
+  const minutes = parseInt(str, 10);
+  return isNaN(minutes) ? 0 : Math.max(60, minutes * 60); // Minimum 1 minute for minute input
 }
 
 // Get current time slot (0-47 for 30-minute slots in a day)

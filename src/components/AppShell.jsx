@@ -5,10 +5,23 @@ import TimerDisplay from './TimerDisplay';
 import HeatmapGrid from './HeatmapGrid';
 import ThemeToggle from './ThemeToggle';
 import Logo from './Logo';
+import SuccessScreen from './SuccessScreen';
 // DailyStats imported in HeatmapGrid
 
 export default function AppShell() {
-  const { toggleFullscreen, isFullscreen, isRunning } = useTimer();
+  const { toggleFullscreen, isFullscreen, isRunning, startTimer, pauseTimer } = useTimer();
+  
+  // Mobile tap handler for fullscreen
+  const handleFullscreenTap = () => {
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 'ontouchstart' in window;
+    if (isMobile) {
+      if (isRunning) {
+        pauseTimer();
+      } else {
+        startTimer();
+      }
+    }
+  };
   
   return (
     <div className="container">
@@ -61,11 +74,16 @@ export default function AppShell() {
         <div className="timer-wrapper">
           {isFullscreen ? (
             // Fullscreen mode: Only show timer
-            <div className="fullscreen-timer">
+            <div className="fullscreen-timer" onClick={handleFullscreenTap}>
               <TimerDisplay />
               {/* Subtle controls hint in fullscreen */}
               <div className="timer-hint" style={{ position: 'absolute', bottom: '40px', textAlign: 'center' }}>
-                {isRunning ? 'SPACEBAR TO PAUSE • R TO RESET' : 'SPACEBAR TO START • R TO RESET'}
+                {isRunning ? 
+                  (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 'ontouchstart' in window ?
+                    'TAP TO PAUSE • R TO RESET' : 'SPACEBAR TO PAUSE • R TO RESET') :
+                  (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 'ontouchstart' in window ?
+                    'TAP TO START • R TO RESET' : 'SPACEBAR TO START • R TO RESET')
+                }
               </div>
             </div>
           ) : (
@@ -83,12 +101,18 @@ export default function AppShell() {
               
               {/* Keyboard shortcuts hint */}
               <div className="keyboard-hint">
-                SPACEBAR: Start/Pause • R: Reset • F: Fullscreen • T: Theme
+                {(/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 'ontouchstart' in window) ?
+                  'TAP: Start/Pause • R: Reset • F: Fullscreen • T: Theme' :
+                  'SPACEBAR: Start/Pause • R: Reset • F: Fullscreen • T: Theme'
+                }
               </div>
             </>
           )}
         </div>
       </div>
+      
+      {/* Success Screen Overlay */}
+      <SuccessScreen />
     </div>
   );
 } 
