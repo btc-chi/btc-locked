@@ -4,13 +4,12 @@ import { getWeekDates, getDateKey, getDailyHeatmapColor, formatHours, getDayAbbr
 import DailyStats from './DailyStats';
 
 export default function HeatmapGrid() {
-  const { workTimeHistory, restTimeHistory } = useTimer();
-  const [viewMode, setViewMode] = useState('work'); // 'work' or 'rest'
+  const { workTimeHistory } = useTimer();
   const [weekOffset, setWeekOffset] = useState(0); // 0 = current week, -1 = last week, 1 = next week
   const weekDates = getWeekDates(weekOffset);
   
-  // Choose which history to display
-  const currentHistory = viewMode === 'work' ? workTimeHistory : restTimeHistory;
+  // Only track work time for "locked" sessions
+  const currentHistory = workTimeHistory;
   
   // Navigation functions
   const goToPreviousWeek = () => setWeekOffset(prev => prev - 1);
@@ -29,7 +28,7 @@ export default function HeatmapGrid() {
   return (
     <div className="heatmap-container">
       <h3 className="heatmap-title">
-        TIME SPENT DEEP
+        FOCUSED HOURS
         <DailyStats />
       </h3>
       
@@ -74,7 +73,7 @@ export default function HeatmapGrid() {
                 <div className="day-label">{dayAbbrev}</div>
                 <div
                   className={`weekly-heatmap-cell ${colorClass} ${isToday ? 'today' : ''}`}
-                  title={`${date.toLocaleDateString()}: ${formatHours(totalMinutes)} ${viewMode} time`}
+                  title={`${date.toLocaleDateString()}: ${formatHours(totalMinutes)} locked time`}
                 />
                 <div className="day-date">{date.getMonth() + 1}/{date.getDate()}</div>
                 <div className="day-time">{totalMinutes > 0 ? formatHours(totalMinutes) : ''}</div>
@@ -105,23 +104,6 @@ export default function HeatmapGrid() {
           <div className="legend-cell bg-white border-gray-100"></div>
         </div>
         <span>More</span>
-      </div>
-      
-      {/* Toggle between work and rest - moved below legend */}
-      <div className="heatmap-toggle-subtle">
-        <button
-          onClick={() => setViewMode('work')}
-          className={`heatmap-toggle-btn-subtle ${viewMode === 'work' ? 'active' : 'inactive'}`}
-        >
-          WORK
-        </button>
-        <span className="toggle-separator">•</span>
-        <button
-          onClick={() => setViewMode('rest')}
-          className={`heatmap-toggle-btn-subtle ${viewMode === 'rest' ? 'active' : 'inactive'}`}
-        >
-          REST
-        </button>
       </div>
     </div>
   );

@@ -61,7 +61,7 @@ export default function TimerDisplay() {
       {/* Status label for fullscreen mode */}
       {isFullscreen && !isEditing && (
         <div className="timer-status-label">
-          {mode === 'work' ? 'LOCKED-IN FOR' : 'RESTING FOR'}
+          {mode === 'work' ? 'LOCKED-IN' : 'RESTING'}
         </div>
       )}
       
