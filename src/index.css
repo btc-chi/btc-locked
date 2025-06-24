@@ -599,6 +599,74 @@ html, body {
   transition: all 0.3s ease;
 }
 
+/* Week Navigation */
+.week-description-bar {
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.week-description {
+  font-size: 0.75rem;
+  color: var(--text-accent);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.weekly-heatmap-with-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.week-nav-btn {
+  background: transparent;
+  border: 1px solid var(--border-primary);
+  color: var(--text-secondary);
+  padding: 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+}
+
+.week-nav-btn:hover {
+  border-color: var(--border-accent);
+  color: var(--text-accent);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.today-btn {
+  background: transparent;
+  border: 1px solid var(--border-accent);
+  color: var(--text-accent);
+  font-size: 0.65rem;
+  padding: 2px 6px;
+  margin-left: 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 500;
+}
+
+.today-btn:hover {
+  background: var(--text-accent);
+  color: var(--bg-primary);
+}
+
 .heatmap-toggle {
   display: flex;
   gap: 8px;
@@ -683,7 +751,6 @@ html, body {
 .weekly-heatmap-grid {
   display: flex;
   gap: 12px;
-  margin-bottom: 16px;
   justify-content: center;
   flex-wrap: wrap;
 }
@@ -692,7 +759,7 @@ html, body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
 }
 
 .day-label {
@@ -723,13 +790,23 @@ html, body {
   box-shadow: 0 0 0 2px var(--text-accent);
 }
 
+.day-date {
+  font-size: 0.65rem;
+  font-family: inherit;
+  color: var(--text-secondary);
+  opacity: 0.6;
+  text-align: center;
+  min-height: 0.8rem;
+}
+
 .day-time {
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   font-family: inherit;
   color: var(--text-secondary);
   opacity: 0.8;
   text-align: center;
-  min-height: 1rem;
+  min-height: 0.8rem;
+  font-weight: 500;
 }
 
 .heatmap-grid {

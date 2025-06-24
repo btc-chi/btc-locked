@@ -55,21 +55,30 @@ export function getHeatmapColor(minutes) {
   return 'bg-white border-gray-100';
 }
 
-// Get past 7 days for heatmap starting from Monday
-export function getPastWeekDates() {
+// Get week dates with offset (0 = current week, -1 = last week, 1 = next week)
+export function getWeekDates(weekOffset = 0) {
   const today = new Date();
   const currentDay = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
   
   // Calculate how many days to go back to get to Monday
   const daysToMonday = currentDay === 0 ? 6 : currentDay - 1;
   
+  // Get Monday of the target week
+  const monday = new Date(today);
+  monday.setDate(today.getDate() - daysToMonday + (weekOffset * 7));
+  
   const dates = [];
-  for (let i = 6; i >= 0; i--) {
-    const date = new Date(today);
-    date.setDate(today.getDate() - daysToMonday - i);
+  for (let i = 0; i < 7; i++) {
+    const date = new Date(monday);
+    date.setDate(monday.getDate() + i);
     dates.push(date);
   }
   return dates;
+}
+
+// Get past 7 days for heatmap starting from Monday (backward compatibility)
+export function getPastWeekDates() {
+  return getWeekDates(0);
 }
 
 // Format minutes for display (e.g., "45m" or "1h 15m")
