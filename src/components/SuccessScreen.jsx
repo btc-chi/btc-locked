@@ -20,13 +20,13 @@ export default function SuccessScreen() {
             className="success-btn success-btn-primary"
             onClick={() => handleSuccessAction('switch')}
           >
-            {wasWorkSession ? 'Thanks, break time' : "Let's keep locking in"}
+            {wasWorkSession ? 'Take a break' : "Lock in"}
           </button>
           <button 
             className="success-btn success-btn-secondary"
             onClick={() => handleSuccessAction('continue')}
           >
-            {wasWorkSession ? 'Keep working' : 'Extend break'}
+            {wasWorkSession ? 'Keep working' : 'Keep resting'}
           </button>
         </div>
       </div>

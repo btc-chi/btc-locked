@@ -1,11 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useTimer } from '../context/TimerContext';
-import { getPastWeekDates, getDateKey, getHeatmapColor, formatMinutes } from '../utils/time';
+import { getPastWeekDates, getDateKey, getDailyHeatmapColor, formatHours, getDayAbbreviation } from '../utils/time';
 import DailyStats from './DailyStats';
 
 export default function HeatmapGrid() {
-  const { timeHistory } = useTimer();
+  const { workTimeHistory, restTimeHistory } = useTimer();
+  const [viewMode, setViewMode] = useState('work'); // 'work' or 'rest'
   const weekDates = getPastWeekDates();
+  
+  // Choose which history to display
+  const currentHistory = viewMode === 'work' ? workTimeHistory : restTimeHistory;
   
   return (
     <div className="heatmap-container">
@@ -14,24 +18,42 @@ export default function HeatmapGrid() {
         <DailyStats />
       </h3>
       
-      <div className="heatmap-grid">
-        {weekDates.map((date, dayIndex) => {
+      <div className="weekly-heatmap-grid">
+        {weekDates.map((date, index) => {
           const dateKey = getDateKey(date);
-          const dayData = timeHistory[dateKey] || {};
+          const totalMinutes = currentHistory[dateKey] || 0;
+          const colorClass = getDailyHeatmapColor(totalMinutes);
+          const dayAbbrev = getDayAbbreviation(date);
+          const isToday = dateKey === getDateKey(new Date());
           
-          return Array.from({ length: 48 }, (_, slotIndex) => {
-            const minutes = dayData[slotIndex] || 0;
-            const colorClass = getHeatmapColor(minutes);
-            
-            return (
+          return (
+            <div key={index} className="weekly-heatmap-day">
+              <div className="day-label">{dayAbbrev}</div>
               <div
-                key={`${dayIndex}-${slotIndex}`}
-                className={`heatmap-cell ${colorClass}`}
-                title={`${date.toLocaleDateString()}, ${Math.floor(slotIndex / 2)}:${(slotIndex % 2) * 30 < 10 ? '0' : ''}${(slotIndex % 2) * 30} - ${formatMinutes(minutes)}`}
+                className={`weekly-heatmap-cell ${colorClass} ${isToday ? 'today' : ''}`}
+                title={`${date.toLocaleDateString()}: ${formatHours(totalMinutes)} ${viewMode} time`}
               />
-            );
-          });
+              <div className="day-time">{formatHours(totalMinutes)}</div>
+            </div>
+          );
         })}
+      </div>
+      
+      {/* Toggle between work and rest - moved below grid */}
+      <div className="heatmap-toggle-subtle">
+        <button
+          onClick={() => setViewMode('work')}
+          className={`heatmap-toggle-btn-subtle ${viewMode === 'work' ? 'active' : 'inactive'}`}
+        >
+          work
+        </button>
+        <span className="toggle-separator">•</span>
+        <button
+          onClick={() => setViewMode('rest')}
+          className={`heatmap-toggle-btn-subtle ${viewMode === 'rest' ? 'active' : 'inactive'}`}
+        >
+          rest
+        </button>
       </div>
       
       <div className="heatmap-legend">

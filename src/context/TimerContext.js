@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useLocalStorage } from '../hooks/useLocalStorage';
-import { getCurrentTimeSlot, getDateKey, formatTime } from '../utils/time';
+import { getDateKey, formatTime } from '../utils/time';
 
 const TimerContext = createContext();
 
@@ -21,6 +21,7 @@ export function TimerProvider({ children }) {
   // Timer state
   const [timeLeft, setTimeLeft] = useState(workDuration);
   const [isRunning, setIsRunning] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [sessionStartTime, setSessionStartTime] = useState(null);
   const [lastLoggedMinute, setLastLoggedMinute] = useState(0);
@@ -28,8 +29,9 @@ export function TimerProvider({ children }) {
   const [successMessage, setSuccessMessage] = useState('');
   const [completedMode, setCompletedMode] = useState(null);
   
-  // Data persistence
-  const [timeHistory, setTimeHistory] = useLocalStorage('locked-time-history', {});
+  // Data persistence - separate work and rest tracking
+  const [workTimeHistory, setWorkTimeHistory] = useLocalStorage('locked-work-time-history', {});
+  const [restTimeHistory, setRestTimeHistory] = useLocalStorage('locked-rest-time-history', {});
   
   // Get current duration based on mode
   const currentDuration = mode === 'work' ? workDuration : restDuration;
@@ -37,19 +39,23 @@ export function TimerProvider({ children }) {
   // Show success screen (no auto-switch)
   const showSuccessScreen = useCallback((completedMode) => {
     const workCompleteMessages = [
-      "✅ Work block complete. Time to recharge.",
-      "Congrats — you earned your break.",
-      "Nice job locking in. Let's rest.",
-      "Session complete! Time for a well-deserved break.",
-      "Locked in and focused. Now let's reset."
+      "✅ Session complete",
+      "🎯 Focused work done",
+      "💪 Time to recharge",
+      "🔥 Great job staying locked in",
+      "⚡ Deep work session finished",
+      "🚀 Mission accomplished",
+      "🧠 Brain power well spent"
     ];
     
     const restCompleteMessages = [
-      "Break's over — let's get back to it.",
-      "Hope that reset helped. Time to lock back in.",
-      "Refreshed and ready. Let's focus.",
-      "Break complete! Time to dive back in.",
-      "Ready to lock in again?"
+      "🔋 Battery recharged",
+      "✨ Ready to focus again", 
+      "🌟 Refreshed and renewed",
+      "💫 Break time complete",
+      "🎪 Time to get back to work",
+      "🎨 Creative energy restored",
+      "🏃 Ready for the next sprint"
     ];
     
     const messages = completedMode === 'work' ? workCompleteMessages : restCompleteMessages;
@@ -106,14 +112,14 @@ export function TimerProvider({ children }) {
     }
   }, []);
   
-  // Update timeLeft when mode or duration changes
+  // Update timeLeft when mode or duration changes (but not during pause)
   useEffect(() => {
-    if (!isRunning) {
+    if (!isRunning && !isPaused) {
       setTimeLeft(currentDuration);
       setSessionStartTime(null);
       setLastLoggedMinute(0);
     }
-  }, [mode, workDuration, restDuration, currentDuration, isRunning]);
+  }, [mode, workDuration, restDuration, currentDuration, isRunning, isPaused]);
   
   // Real-time logging function that updates heatmap every minute
   const logRealtimeProgress = useCallback(() => {
@@ -126,20 +132,24 @@ export function TimerProvider({ children }) {
     // Only log if we've completed a new minute
     if (elapsedMinutes > lastLoggedMinute) {
       const today = getDateKey();
-      const timeSlot = getCurrentTimeSlot();
       const minutesToAdd = elapsedMinutes - lastLoggedMinute;
       
-      setTimeHistory(prev => ({
-        ...prev,
-        [today]: {
-          ...prev[today],
-          [timeSlot]: (prev[today]?.[timeSlot] || 0) + minutesToAdd
-        }
-      }));
+      // Log to appropriate history based on current mode
+      if (mode === 'work') {
+        setWorkTimeHistory(prev => ({
+          ...prev,
+          [today]: (prev[today] || 0) + minutesToAdd
+        }));
+      } else {
+        setRestTimeHistory(prev => ({
+          ...prev,
+          [today]: (prev[today] || 0) + minutesToAdd
+        }));
+      }
       
       setLastLoggedMinute(elapsedMinutes);
     }
-  }, [isRunning, sessionStartTime, lastLoggedMinute, setTimeHistory]);
+  }, [isRunning, sessionStartTime, lastLoggedMinute, mode, setWorkTimeHistory, setRestTimeHistory]);
   
   // Real-time logging interval (every 10 seconds for smooth updates)
   useEffect(() => {
@@ -152,6 +162,7 @@ export function TimerProvider({ children }) {
   // Control functions
   const startTimer = useCallback(() => {
     setIsRunning(true);
+    setIsPaused(false);
     setSessionStartTime(Date.now());
     setLastLoggedMinute(0);
   }, []);
@@ -160,12 +171,22 @@ export function TimerProvider({ children }) {
     // Log final progress before pausing
     logRealtimeProgress();
     setIsRunning(false);
-    setSessionStartTime(null);
-    setLastLoggedMinute(0);
+    setIsPaused(true);
+    // Keep session data intact for resume
   }, [logRealtimeProgress]);
+
+  const resumeTimer = useCallback(() => {
+    setIsRunning(true);
+    setIsPaused(false);
+    // Reset session start time to current time, adjusting for elapsed time
+    const elapsed = currentDuration - timeLeft;
+    setSessionStartTime(Date.now() - (elapsed * 1000));
+    setLastLoggedMinute(Math.floor(elapsed / 60));
+  }, [currentDuration, timeLeft]);
   
   const resetTimer = useCallback(() => {
     setIsRunning(false);
+    setIsPaused(false);
     setTimeLeft(currentDuration);
     setSessionStartTime(null);
     setLastLoggedMinute(0);
@@ -183,6 +204,7 @@ export function TimerProvider({ children }) {
             playCompletionSound();
             const completedMode = mode;
             setIsRunning(false);
+            setIsPaused(false);
             setSessionStartTime(null);
             setLastLoggedMinute(0);
             
@@ -204,6 +226,7 @@ export function TimerProvider({ children }) {
       logRealtimeProgress();
     }
     setIsRunning(false);
+    setIsPaused(false);
     setMode(newMode);
     setSessionStartTime(null);
     setLastLoggedMinute(0);
@@ -215,7 +238,7 @@ export function TimerProvider({ children }) {
     } else {
       setRestDuration(newDuration);
     }
-    if (targetMode === mode && !isRunning) {
+    if (targetMode === mode && !isRunning && !isPaused) {
       setTimeLeft(newDuration);
     }
   };
@@ -253,6 +276,8 @@ export function TimerProvider({ children }) {
           e.preventDefault();
           if (isRunning) {
             pauseTimer();
+          } else if (isPaused) {
+            resumeTimer();
           } else {
             startTimer();
           }
@@ -272,18 +297,20 @@ export function TimerProvider({ children }) {
     
     document.addEventListener('keydown', handleKeyPress);
     return () => document.removeEventListener('keydown', handleKeyPress);
-  }, [isRunning, pauseTimer, startTimer, resetTimer]);
+  }, [isRunning, isPaused, pauseTimer, resumeTimer, startTimer, resetTimer]);
   
   const value = {
     // State
     mode,
     timeLeft,
     isRunning,
+    isPaused,
     isFullscreen,
     workDuration,
     restDuration,
     currentDuration,
-    timeHistory,
+    workTimeHistory,
+    restTimeHistory,
     showSuccess,
     successMessage,
     completedMode,
@@ -295,6 +322,7 @@ export function TimerProvider({ children }) {
     // Actions
     startTimer,
     pauseTimer,
+    resumeTimer,
     resetTimer,
     switchMode,
     updateDuration,

@@ -55,12 +55,18 @@ export function getHeatmapColor(minutes) {
   return 'bg-white border-gray-100';
 }
 
-// Get past 7 days for heatmap
+// Get past 7 days for heatmap starting from Monday
 export function getPastWeekDates() {
+  const today = new Date();
+  const currentDay = today.getDay(); // 0 = Sunday, 1 = Monday, etc.
+  
+  // Calculate how many days to go back to get to Monday
+  const daysToMonday = currentDay === 0 ? 6 : currentDay - 1;
+  
   const dates = [];
   for (let i = 6; i >= 0; i--) {
-    const date = new Date();
-    date.setDate(date.getDate() - i);
+    const date = new Date(today);
+    date.setDate(today.getDate() - daysToMonday - i);
     dates.push(date);
   }
   return dates;
@@ -181,4 +187,21 @@ export function calculatePercentageChange(current, previous) {
   } else {
     return '0';
   }
+}
+
+// Calculate daily color intensity for simplified weekly heatmap based on hours logged
+export function getDailyHeatmapColor(totalMinutes, maxTargetHours = 8) {
+  const maxMinutes = maxTargetHours * 60;
+  
+  if (totalMinutes === 0) return 'bg-gray-900 border-gray-800';
+  if (totalMinutes <= maxMinutes * 0.2) return 'bg-gray-700 border-gray-600'; // 0-20%
+  if (totalMinutes <= maxMinutes * 0.4) return 'bg-gray-500 border-gray-400'; // 20-40%
+  if (totalMinutes <= maxMinutes * 0.7) return 'bg-gray-300 border-gray-200'; // 40-70%
+  return 'bg-white border-gray-100'; // 70%+
+}
+
+// Get day name abbreviation
+export function getDayAbbreviation(date) {
+  const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  return days[date.getDay()];
 } 

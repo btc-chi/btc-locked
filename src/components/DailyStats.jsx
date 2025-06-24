@@ -8,11 +8,30 @@ import {
 } from '../utils/time';
 
 export default function DailyStats() {
-  const { timeHistory } = useTimer();
+  const { workTimeHistory, restTimeHistory } = useTimer();
   const [isVisible, setIsVisible] = useState(false);
 
   // Calculate comparative analytics
   const comparativeStats = useMemo(() => {
+    // Combine work and rest time for total deep work analytics
+    const combinedHistory = {};
+    
+    // Combine work time
+    Object.keys(workTimeHistory).forEach(date => {
+      combinedHistory[date] = (combinedHistory[date] || 0) + workTimeHistory[date];
+    });
+    
+    // Add rest time
+    Object.keys(restTimeHistory).forEach(date => {
+      combinedHistory[date] = (combinedHistory[date] || 0) + restTimeHistory[date];
+    });
+    
+    // Convert to old format for compatibility with existing functions
+    const timeHistory = {};
+    Object.keys(combinedHistory).forEach(date => {
+      timeHistory[date] = { 0: combinedHistory[date] }; // Put all minutes in slot 0
+    });
+    
     // Get current periods
     const todayMinutes = getTotalMinutesForDateRange(timeHistory, getDateRange('today'));
     const thisWeekMinutes = getTotalMinutesForDateRange(timeHistory, getDateRange('thisWeek'));
@@ -60,7 +79,7 @@ export default function DailyStats() {
         formatted: formatHours(allTimeMinutes)
       }
     };
-  }, [timeHistory]);
+  }, [workTimeHistory, restTimeHistory]);
 
   // Helper function to format percentage change with colors
   const formatChange = (change) => {

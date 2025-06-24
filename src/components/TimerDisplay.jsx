@@ -3,7 +3,7 @@ import { useTimer } from '../context/TimerContext';
 import { formatDisplayTime, parseTime } from '../utils/time';
 
 export default function TimerDisplay() {
-  const { formattedTime, currentDuration, updateDuration, isRunning, isFullscreen, startTimer, pauseTimer } = useTimer();
+  const { formattedTime, currentDuration, updateDuration, isRunning, isPaused, isFullscreen, startTimer, pauseTimer, resumeTimer, mode } = useTimer();
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState('');
   const [isMobile, setIsMobile] = useState(false);
@@ -48,6 +48,8 @@ export default function TimerDisplay() {
     if (isMobile && !isEditing) {
       if (isRunning) {
         pauseTimer();
+      } else if (isPaused) {
+        resumeTimer();
       } else {
         startTimer();
       }
@@ -56,6 +58,13 @@ export default function TimerDisplay() {
   
   return (
     <div className="timer-display">
+      {/* Status label for fullscreen mode */}
+      {isFullscreen && !isEditing && (
+        <div className="timer-status-label">
+          {mode === 'work' ? 'LOCKED-IN FOR' : 'RESTING FOR'}
+        </div>
+      )}
+      
       {isEditing ? (
         <input
           type="text"
@@ -77,12 +86,21 @@ export default function TimerDisplay() {
         </div>
       )}
       
-      {!isFullscreen && !isEditing && !isRunning && (
+      {!isFullscreen && !isEditing && !isRunning && !isPaused && (
         <div 
           className={`timer-hint ${!isMobile ? 'timer-hint-clickable' : ''}`}
-          onClick={!isMobile ? startTimer : undefined}
+          onClick={!isMobile ? startTimer : handleTimerTap}
         >
           {isMobile ? 'TAP TO START' : 'SPACEBAR TO START'}
+        </div>
+      )}
+
+      {!isFullscreen && !isEditing && isPaused && (
+        <div 
+          className={`timer-hint ${!isMobile ? 'timer-hint-clickable' : ''}`}
+          onClick={!isMobile ? resumeTimer : handleTimerTap}
+        >
+          {isMobile ? 'TAP TO RESUME' : 'SPACEBAR TO RESUME'}
         </div>
       )}
       

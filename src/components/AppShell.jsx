@@ -9,7 +9,7 @@ import SuccessScreen from './SuccessScreen';
 // DailyStats imported in HeatmapGrid
 
 export default function AppShell() {
-  const { toggleFullscreen, isFullscreen, isRunning, startTimer, pauseTimer } = useTimer();
+  const { toggleFullscreen, isFullscreen, isRunning, isPaused, startTimer, pauseTimer, resumeTimer } = useTimer();
   
   // Mobile tap handler for fullscreen
   const handleFullscreenTap = () => {
@@ -28,6 +28,45 @@ export default function AppShell() {
       {/* Theme toggle */}
       <ThemeToggle />
       
+      {/* Pause/Resume button */}
+      <button
+        onClick={isRunning ? pauseTimer : (isPaused ? resumeTimer : null)}
+        className="pause-btn"
+        title={isRunning ? 'Pause (Space)' : isPaused ? 'Resume (Space)' : ''}
+        style={{ display: (isRunning || isPaused) ? 'block' : 'none' }}
+      >
+        {isRunning ? (
+          // Pause icon
+          <svg 
+            width="20" 
+            height="20" 
+            viewBox="0 0 24 24" 
+            fill="none" 
+            stroke="currentColor" 
+            strokeWidth="2" 
+            strokeLinecap="round" 
+            strokeLinejoin="round"
+          >
+            <rect x="6" y="4" width="4" height="16"></rect>
+            <rect x="14" y="4" width="4" height="16"></rect>
+          </svg>
+        ) : (
+          // Play icon (thinner)
+          <svg 
+            width="20" 
+            height="20" 
+            viewBox="0 0 24 24" 
+            fill="none" 
+            stroke="currentColor" 
+            strokeWidth="1.5" 
+            strokeLinecap="round" 
+            strokeLinejoin="round"
+          >
+            <polygon points="5,3 19,12 5,21"></polygon>
+          </svg>
+        )}
+      </button>
+
       {/* Fullscreen toggle/exit button */}
       <button
         onClick={toggleFullscreen}
