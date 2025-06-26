@@ -63,7 +63,8 @@ export default function HeatmapGrid() {
         <div className="weekly-heatmap-grid">
           {weekDates.map((date, index) => {
             const dateKey = getDateKey(date);
-            const totalMinutes = Object.values(currentHistory[dateKey] || {}).reduce((sum, minutes) => sum + (minutes || 0), 0);
+            // Handle new data structure: workTimeHistory[dateKey] is now a number, not an object
+            const totalMinutes = currentHistory[dateKey] || 0;
             const colorClass = getDailyHeatmapColor(totalMinutes);
             const dayAbbrev = getDayAbbreviation(date);
             const isToday = dateKey === getDateKey(new Date());
