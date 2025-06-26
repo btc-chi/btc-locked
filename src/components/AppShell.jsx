@@ -25,6 +25,13 @@ export default function AppShell() {
   
   return (
     <div className="container">
+      {/* Text logo for non-fullscreen mode */}
+      {!isFullscreen && (
+        <div className="text-logo">
+          // LOCK-IN TIMER
+        </div>
+      )}
+      
       {/* Theme toggle */}
       <ThemeToggle />
       

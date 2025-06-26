@@ -591,6 +591,21 @@ html, body {
   z-index: 10;
 }
 
+/* Text logo for non-fullscreen mode */
+.text-logo {
+  position: absolute;
+  top: 36px;
+  left: 24px;
+  font-size: 1rem;
+  font-family: inherit;
+  color: var(--text-secondary);
+  opacity: 0.6;
+  letter-spacing: 0.05em;
+  font-weight: 400;
+  z-index: 5;
+  user-select: none;
+}
+
 /* Heatmap styles */
 .heatmap-container {
   display: flex;

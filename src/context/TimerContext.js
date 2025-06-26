@@ -142,10 +142,10 @@ export function TimerProvider({ children }) {
         }));
       } else {
         setRestTimeHistory(prev => ({
-          ...prev,
+        ...prev,
           [today]: (prev[today] || 0) + minutesToAdd
         }));
-      }
+        }
       
       setLastLoggedMinute(elapsedMinutes);
     }
