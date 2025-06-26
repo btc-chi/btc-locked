@@ -7,6 +7,7 @@ export default function TimerDisplay() {
   const [isEditing, setIsEditing] = useState(false);
   const [editValue, setEditValue] = useState('');
   const [isMobile, setIsMobile] = useState(false);
+  const [currentStatusMessage, setCurrentStatusMessage] = useState('');
   
   // Detect mobile device
   useEffect(() => {
@@ -56,12 +57,38 @@ export default function TimerDisplay() {
     }
   };
   
+  // Generate random status message only when entering fullscreen
+  const generateRandomStatus = () => {
+    const workMessages = [
+      'locked-in', 'focusing', 'dialed', 'working', 'hustling',
+      'in the zone', 'flow state', 'grinding', 'building', 'creating',
+      'deep work', 'laser focus', 'beast mode', 'crushing it', 'momentum',
+      'no distractions', 'pure focus', 'locked & loaded', 'getting after it'
+    ];
+    const restMessages = [
+      'resting', 'chillin\'', 'vibing', 'coolin\'', 'recharging', 'gaming',
+      'decompressing', 'brain break', 'reset mode', 'breathing', 'restoring',
+      'mind wandering', 'power nap', 'reboot time', 'zen mode', 'unplugged',
+      'battery charging', 'mental break', 'restoration', 'inner peace'
+    ];
+    
+    const messages = mode === 'work' ? workMessages : restMessages;
+    return messages[Math.floor(Math.random() * messages.length)];
+  };
+
+  // Update status message only when entering fullscreen mode
+  useEffect(() => {
+    if (isFullscreen) {
+      setCurrentStatusMessage(generateRandomStatus());
+    }
+  }, [isFullscreen, mode]);
+
   return (
     <div className="timer-display">
-      {/* Status label for fullscreen mode */}
+      {/* Status label for fullscreen mode - moved to top left */}
       {isFullscreen && !isEditing && (
-        <div className="timer-status-label">
-          {mode === 'work' ? 'LOCKED-IN' : 'RESTING'}
+        <div className="timer-status-label-topleft">
+          // {currentStatusMessage}
         </div>
       )}
       

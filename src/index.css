@@ -576,6 +576,21 @@ html, body {
   font-weight: 500;
 }
 
+/* Timer status label for fullscreen - top left position */
+.timer-status-label-topleft {
+  position: absolute;
+  top: 36px;
+  left: 24px;
+  font-size: 1rem;
+  font-family: inherit;
+  color: var(--text-secondary);
+  opacity: 0.7;
+  letter-spacing: 0.05em;
+  font-weight: 400;
+  text-transform: uppercase;
+  z-index: 10;
+}
+
 /* Heatmap styles */
 .heatmap-container {
   display: flex;
